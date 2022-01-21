@@ -171,9 +171,9 @@ trait IssueCertificateHelper {
         val courseName = getCourseName(event.courseId)(metrics, config, cache, httpUtil)
         val dateFormatter = new SimpleDateFormat("yyyy-MM-dd")
         //val regNurseRegMidwifeNumber = Option{{(userDetails.getOrElse("profileDetails", "").asInstanceOf[Map]).getOrElse("profileReq", "").asInstanceOf[Map])}.getOrElse("personalDetails", "").asInstanceOf[String])}.getOrElse("")
-        val profileDetails : Map[String, AnyRef] = Option(userDetails.getOrElse("profileDetails", "").asInstanceOf[Map])
-        val profileReq : Map[String, AnyRef] = Option(profileDetails.getOrElse("profileReq", "").asInstanceOf[Map])
-        val personalDetails : Map[String, AnyRef] = Option(profileReq.getOrElse("personalDetails", "").asInstanceOf[Map])
+        val profileDetails : Map[String, AnyRef] = userDetails.getOrElse("profileDetails", "").asInstanceOf[Map]
+        val profileReq : Map[String, AnyRef] = profileDetails.getOrElse("profileReq", "").asInstanceOf[Map]
+        val personalDetails : Map[String, AnyRef] = profileReq.getOrElse("personalDetails", "").asInstanceOf[Map]
         val regNurseRegMidwifeNumber = Option(personalDetails.getOrElse("regNurseRegMidwifeNumber", "").asInstanceOf[String]).getOrElse("")
         val eData = Map[String, AnyRef] (
             "issuedDate" -> dateFormatter.format(enrolledUser.issuedOn),
