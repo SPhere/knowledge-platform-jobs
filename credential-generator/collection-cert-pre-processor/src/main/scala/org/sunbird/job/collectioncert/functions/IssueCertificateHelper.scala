@@ -18,16 +18,21 @@ trait IssueCertificateHelper {
 
 
     def issueCertificate(event:Event, template: Map[String, String])(cassandraUtil: CassandraUtil, cache:DataCache, contentCache: DataCache, metrics: Metrics, config: CollectionCertPreProcessorConfig, httpUtil: HttpUtil): String = {
+        logger.info(s"inside issueCertificate ")
         //validCriteria
         val criteria = validateTemplate(template, event.batchId)(config)
+        logger.info(s"criteria :: ${criteria} ")
         //validateEnrolmentCriteria
         val certName = template.getOrElse(config.name, "")
+        logger.info(s"certName :: ${certName} ")
         val enrolledUser: EnrolledUser = validateEnrolmentCriteria(event, criteria.getOrElse(config.enrollment, Map[String, AnyRef]()).asInstanceOf[Map[String, AnyRef]], certName)(metrics, cassandraUtil, config)
+        logger.info(s"enrolledUser :: ${enrolledUser} ")
         //validateAssessmentCriteria
         val assessedUser = validateAssessmentCriteria(event, criteria.getOrElse(config.assessment, Map[String, AnyRef]()).asInstanceOf[Map[String, AnyRef]], enrolledUser.userId)(metrics, cassandraUtil, contentCache, config)
+        logger.info(s"assessedUser :: ${assessedUser} ")
         //validateUserCriteria
         val userDetails = validateUser(assessedUser, criteria.getOrElse(config.user, Map[String, AnyRef]()).asInstanceOf[Map[String, AnyRef]])(metrics, config, httpUtil)
-
+        logger.info(s"userDetails :: ${userDetails} ")
         //generateCertificateEvent
         if(userDetails.nonEmpty) {
             generateCertificateEvent(event, template, userDetails, enrolledUser, certName)(metrics, config, cache, httpUtil)
@@ -164,6 +169,7 @@ trait IssueCertificateHelper {
     }
 
     def generateCertificateEvent(event: Event, template: Map[String, String], userDetails: Map[String, AnyRef], enrolledUser: EnrolledUser, certName: String)(metrics:Metrics, config:CollectionCertPreProcessorConfig, cache:DataCache, httpUtil: HttpUtil) = {
+        logger.info(s"generateCertificateEvent called ")
         val firstName = Option(userDetails.getOrElse("firstName", "").asInstanceOf[String]).getOrElse("")
         val lastName = Option(userDetails.getOrElse("lastName", "").asInstanceOf[String]).getOrElse("")
         def nullStringCheck(name:String):String = {if(StringUtils.equalsIgnoreCase("null", name)) ""  else name}
