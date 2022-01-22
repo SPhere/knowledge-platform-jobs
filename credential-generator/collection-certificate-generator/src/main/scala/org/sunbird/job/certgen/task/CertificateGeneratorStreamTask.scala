@@ -76,9 +76,11 @@ object CertificateGeneratorStreamTask {
     if(StringUtils.equalsIgnoreCase(ccgConfig.storageType, JsonKeys.AZURE)){
       storageParams = StorageParams(ccgConfig.storageType, ccgConfig.azureStorageKey, ccgConfig.azureStorageSecret, ccgConfig.containerName)
     }else{
+      println("awsStorageKey=" +ccgConfig.awsStorageKey)
+      println("awsStorageSecret=" +ccgConfig.awsStorageSecret)
       storageParams = StorageParams(ccgConfig.storageType, ccgConfig.awsStorageKey, ccgConfig.awsStorageSecret, ccgConfig.containerName)
     }
-
+    println("storageParams=" +storageParams)
     //val storageParams: StorageParams = StorageParams(ccgConfig.storageType, ccgConfig.azureStorageKey, ccgConfig.azureStorageSecret, ccgConfig.containerName)
     val storageService: StorageService = new StorageService(storageParams)
     val task = new CertificateGeneratorStreamTask(ccgConfig, kafkaUtil, httpUtil, storageService)
