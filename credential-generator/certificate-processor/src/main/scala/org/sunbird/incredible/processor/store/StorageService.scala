@@ -23,8 +23,11 @@ class StorageService(storageParams: StorageParams) extends Serializable {
         val storageSecret = storageParams.azureStorageSecret
         storageService = StorageServiceFactory.getStorageService(StorageConfig(storageType, storageKey, storageSecret))
       } else if (StringUtils.equalsIgnoreCase(storageType, JsonKeys.AWS)) {
-        val storageKey = storageParams.awsStorageKey.get
-        val storageSecret = storageParams.awsStorageSecret.get
+        println("storageType=" +storageType)
+        val storageKey = storageParams.awsStorageKey.getOrElse("AKIAQ5NPIYLIDH2VU25L")
+        println("storageKey=" +storageKey)
+        val storageSecret = storageParams.awsStorageSecret.getOrElse("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")
+        println("storageSecret=" +storageSecret)
         storageService = StorageServiceFactory.getStorageService(StorageConfig(storageType, storageKey, storageSecret))
       } else throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Error while initialising cloud storage")
     }

@@ -36,6 +36,7 @@ class CertMapper(certConfig: CertificateConfig) {
         criteria = getCriteria(certReq.criteria),
         keyId = certReq.keys.getOrElse(JsonKeys.ID, ""),
         tag = certReq.tag,
+        rmNumber = certReq.rmNumber,
         expiry = Option.apply(expiryDate)
       )
       certModel
