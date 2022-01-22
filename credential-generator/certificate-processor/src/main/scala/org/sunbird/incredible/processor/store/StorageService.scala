@@ -40,7 +40,7 @@ class StorageService(storageParams: StorageParams) extends Serializable {
     if (StringUtils.equalsIgnoreCase(storageType, JsonKeys.AZURE))
       storageParams.azureContainerName
     else if (StringUtils.equalsIgnoreCase(storageType, JsonKeys.AWS))
-      storageParams.awsContainerName.get
+      storageParams.azureContainerName
     else
       throw new ServerException("ERR_INVALID_CLOUD_STORAGE", "Container name not configured.")
   }
