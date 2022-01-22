@@ -1,7 +1,6 @@
 package org.sunbird.incredible.processor.store
 
 import java.io.File
-
 import org.apache.commons.lang3.StringUtils
 import org.sunbird.cloud.storage.BaseStorageService
 import org.sunbird.cloud.storage.factory.StorageConfig
@@ -24,9 +23,9 @@ class StorageService(storageParams: StorageParams) extends Serializable {
         storageService = StorageServiceFactory.getStorageService(StorageConfig(storageType, storageKey, storageSecret))
       } else if (StringUtils.equalsIgnoreCase(storageType, JsonKeys.AWS)) {
         println("storageType=" +storageType)
-        val storageKey = storageParams.awsStorageKey.get
+        val storageKey = storageParams.awsStorageKey.getOrElse("AKIAQ5NPIYLIDH2VU25L")
         println("storageKey=" +storageKey)
-        val storageSecret = storageParams.awsStorageSecret.get
+        val storageSecret = storageParams.awsStorageSecret.getOrElse("jj8Xx7YWDoCxr07FpCPsgqbiUfCjypIHF3Dra5aq")
         println("storageSecret=" +storageSecret)
         storageService = StorageServiceFactory.getStorageService(StorageConfig(storageType, storageKey, storageSecret))
       } else if (StringUtils.equalsIgnoreCase(storageType, JsonKeys.CEPHS3)) {
