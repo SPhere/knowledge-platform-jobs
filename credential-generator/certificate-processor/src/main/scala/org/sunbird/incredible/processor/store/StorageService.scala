@@ -24,9 +24,9 @@ class StorageService(storageParams: StorageParams) extends Serializable {
         storageService = StorageServiceFactory.getStorageService(StorageConfig(storageType, storageKey, storageSecret))
       } else if (StringUtils.equalsIgnoreCase(storageType, JsonKeys.AWS)) {
         println("storageType=" +storageType)
-        val storageKey = storageParams.awsStorageKey.getOrElse("")
+        val storageKey = storageParams.awsStorageKey
         println("storageKey=" +storageKey)
-        val storageSecret = storageParams.awsStorageSecret.getOrElse("")
+        val storageSecret = storageParams.awsStorageSecret
         println("storageSecret=" +storageSecret)
         storageService = StorageServiceFactory.getStorageService(StorageConfig(storageType, storageKey, storageSecret))
       } else if (StringUtils.equalsIgnoreCase(storageType, JsonKeys.CEPHS3)) {
