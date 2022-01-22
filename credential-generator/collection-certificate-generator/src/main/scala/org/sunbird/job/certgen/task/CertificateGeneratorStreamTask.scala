@@ -72,7 +72,7 @@ object CertificateGeneratorStreamTask {
     val ccgConfig = new CertificateGeneratorConfig(config)
     val kafkaUtil = new FlinkKafkaConnector(ccgConfig)
     val httpUtil = new HttpUtil
-    var storageParams: Any => Any = _: Any
+    var storageParams: StorageParams = null
     if(StringUtils.equalsIgnoreCase(ccgConfig.storageType, JsonKeys.AZURE)){
       storageParams = StorageParams(ccgConfig.storageType, ccgConfig.azureStorageKey, ccgConfig.azureStorageSecret, ccgConfig.containerName)
     }else{
