@@ -36,14 +36,15 @@ trait CollectionPublisher extends ObjectReader with SyncMessagesGenerator with O
 
   override def getExtData(identifier: String, pkgVersion: Double, mimeType: String, readerConfig: ExtDataConfig)(implicit cassandraUtil: CassandraUtil): Option[ObjectExtData] = None
 
-  override def getHierarchy(identifier: String, pkgVersion: Double, readerConfig: ExtDataConfig)(implicit cassandraUtil: CassandraUtil): Option[Map[String, AnyRef]] = {
-    val row: Row = Option(getCollectionHierarchy(getEditableObjId(identifier, pkgVersion), readerConfig)).getOrElse(getCollectionHierarchy(identifier, readerConfig))
+  override def getHierarchy(identifier: String, pkgVersion: Double, readerConfig: ExtDataConfig, isChild: Boolean =false)(implicit cassandraUtil: CassandraUtil): Option[Map[String, AnyRef]] = {
+    val row: Row = if(isChild) getCollectionHierarchy(identifier, readerConfig)
+    else Option(getCollectionHierarchy(getEditableObjId(identifier, pkgVersion), readerConfig)).getOrElse(getCollectionHierarchy(identifier, readerConfig))
     if (null != row) {
       val data: Map[String, AnyRef] = ScalaJsonUtil.deserialize[Map[String, AnyRef]](row.getString("hierarchy"))
       Option(data)
     } else Option(Map.empty[String, AnyRef])
   }
-
+  
   private def getCollectionHierarchy(identifier: String, readerConfig: ExtDataConfig)(implicit cassandraUtil: CassandraUtil): Row = {
     val selectWhere: Select.Where = QueryBuilder.select().all()
       .from(readerConfig.keyspace, readerConfig.table).
@@ -54,7 +55,7 @@ trait CollectionPublisher extends ObjectReader with SyncMessagesGenerator with O
 
   def getRelationalMetadata(identifier: String, pkgVersion: Double, readerConfig: ExtDataConfig)(implicit cassandraUtil: CassandraUtil): Option[Map[String, AnyRef]] = {
     val row: Row = Option(getCollectionHierarchy(getEditableObjId(identifier, pkgVersion), readerConfig)).getOrElse(getCollectionHierarchy(identifier, readerConfig))
-    if (null != row && row.getString("relational_metadata") != null) {
+    if (null != row && row.getString("relational_metadata") != null && row.getString("relational_metadata").nonEmpty) {
       val data: Map[String, AnyRef] = ScalaJsonUtil.deserialize[Map[String, AnyRef]](row.getString("relational_metadata"))
       Option(data)
     } else Option(Map.empty[String, AnyRef])
@@ -124,7 +125,7 @@ trait CollectionPublisher extends ObjectReader with SyncMessagesGenerator with O
   override def deleteExternalData(obj: ObjectData, readerConfig: ExtDataConfig)(implicit cassandraUtil: CassandraUtil): Unit = None
 
   def getObjectWithEcar(obj: ObjectData, pkgTypes: List[String])(implicit ec: ExecutionContext, neo4JUtil: Neo4JUtil, cassandraUtil: CassandraUtil, readerConfig: ExtDataConfig, cloudStorageUtil: CloudStorageUtil, config: PublishConfig, defCache: DefinitionCache, defConfig: DefinitionConfig, httpUtil: HttpUtil): ObjectData = {
-   val collRelationalMetadata = getRelationalMetadata(obj.identifier, obj.pkgVersion-1, readerConfig).get
+   val collRelationalMetadata = getRelationalMetadata(obj.identifier, obj.pkgVersion-1, readerConfig).getOrElse(Map.empty[String, AnyRef])
     // Line 1107 in PublishFinalizer
     val children = obj.hierarchy.getOrElse(Map()).getOrElse("children", List()).asInstanceOf[List[Map[String, AnyRef]]]
     val updatedChildren = updateHierarchyMetadata(children, obj.metadata, collRelationalMetadata)(config)
@@ -203,7 +204,7 @@ trait CollectionPublisher extends ObjectReader with SyncMessagesGenerator with O
           case _: Double => child.getOrElse("pkgVersion", 0).asInstanceOf[Double].doubleValue()
           case _ => child.getOrElse("pkgVersion", "0").toString.toDouble
         }
-        val childCollectionHierarchy = getHierarchy(child.getOrElse("identifier", "").asInstanceOf[String], pkgVersion, readerConfig).get
+        val childCollectionHierarchy = getHierarchy(child.getOrElse("identifier", "").asInstanceOf[String], pkgVersion, readerConfig, true).get
         if (childCollectionHierarchy.nonEmpty) {
           val childNodes = childCollectionHierarchy.getOrElse("childNodes", List.empty).asInstanceOf[List[String]]
           if (childNodes.nonEmpty && INCLUDE_CHILDNODE_OBJECTS.contains(child.getOrElse("objectType", "").asInstanceOf[String])) collectionResourceChildNodes ++= childNodes.toSet[String]
