@@ -64,24 +64,33 @@ class CertificateGeneratorFunction(config: CertificateGeneratorConfig, httpUtil:
                               context: KeyedProcessFunction[String, Event, String]#Context,
                               metrics: Metrics): Unit = {
     println("Certificate data: " + event)
+    logger.info("Certificate data: " + event)
     metrics.incCounter(config.totalEventsCount)
-    try {
+//    try {
       val certValidator = new CertValidator()
       logger.info("Certificate generator | is rc integration enabled: " + config.enableRcCertificate)
+      print("certValidator call start ")
+    logger.info("certValidator call start  " )
       certValidator.validateGenerateCertRequest(event, config.enableSuppressException)
+     print("certValidator call end ")
+    logger.info("certValidator call end: ")
       if(certValidator.isNotIssued(event)(config, metrics, cassandraUtil)) {
         if(config.enableRcCertificate) generateCertificateUsingRC(event, context)(metrics)
-        else generateCertificate(event, context)(metrics)
+        else
+          logger.info("generateCertificate fun start "+event+ "context : "+ context +"metrics :"+metrics)
+          generateCertificate(event, context)(metrics)
+        logger.info("generateCertificate fun end "+event+ "context : "+ context +"metrics :"+metrics)
+
 
       } else {
         metrics.incCounter(config.skippedEventCount)
         logger.info(s"Certificate already issued for: ${event.eData.getOrElse("userId", "")} ${event.related}")
       }
-    } catch {
-      case e: Exception =>
-        metrics.incCounter(config.failedEventCount)
-        throw new InvalidEventException(e.getMessage, Map("partition" -> event.partition, "offset" -> event.offset), e)
-    }
+//    } catch {
+//      case e: Exception =>
+//        metrics.incCounter(config.failedEventCount)
+//        throw new InvalidEventException(e.getMessage, Map("partition" -> event.partition, "offset" -> event.offset), e)
+//    }
   }
 
   @throws[Exception]
