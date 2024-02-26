@@ -77,9 +77,9 @@ class CertificateGeneratorFunction(config: CertificateGeneratorConfig, httpUtil:
       if(certValidator.isNotIssued(event)(config, metrics, cassandraUtil)) {
         if(config.enableRcCertificate) generateCertificateUsingRC(event, context)(metrics)
         else
-          logger.info("generateCertificate fun start "+event+ "context : "+ context +"metrics :"+metrics)
+          logger.info("generateCertificate fun start "+event)
           generateCertificate(event, context)(metrics)
-        logger.info("generateCertificate fun end "+event+ "context : "+ context +"metrics :"+metrics)
+        logger.info("generateCertificate fun end "+event)
 
 
       } else {
