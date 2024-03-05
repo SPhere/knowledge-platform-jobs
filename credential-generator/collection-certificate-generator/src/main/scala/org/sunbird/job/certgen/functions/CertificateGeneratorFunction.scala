@@ -114,6 +114,7 @@ class CertificateGeneratorFunction(config: CertificateGeneratorConfig, httpUtil:
           JsonKeys.RECIPIENT_NAME -> certModel.recipientName, JsonKeys.RECIPIENT_ID -> certModel.identifier,
           config.RELATED -> event.related
         ) ++ {if (!event.oldId.isEmpty) Map[String, AnyRef](config.OLD_ID -> event.oldId) else Map[String, AnyRef]()}})
+        logger.info("addReq: "+addReq)
         addCertToRegistry(event, addReq, context)(metrics)
         //cert-registry end
         val related = event.related
@@ -186,8 +187,8 @@ class CertificateGeneratorFunction(config: CertificateGeneratorConfig, httpUtil:
   @throws[ServerException]
   def addCertToRegistry(certReq: Event, request: Map[String, AnyRef], context: KeyedProcessFunction[String, Event, String]#Context)(implicit metrics: Metrics): Unit = {
     logger.info("adding certificate to the registry")
-    logger.info("adding certificate to the registry input request : "+request)
-    print("***** :"+request)
+//    logger.info("adding certificate to the registry input request : "+request)
+
     val httpRequest = ScalaModuleJsonUtils.serialize(request)
     logger.info("adding certificate to the registry after request : "+config.certRegistryBaseUrl + config.addCertRegApi)
     print(" after request L ***** :"+config.certRegistryBaseUrl + config.addCertRegApi)
