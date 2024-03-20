@@ -63,34 +63,24 @@ class CertificateGeneratorFunction(config: CertificateGeneratorConfig, httpUtil:
   override def processElement(event: Event,
                               context: KeyedProcessFunction[String, Event, String]#Context,
                               metrics: Metrics): Unit = {
-    println("Certificate data: " + event)
-    logger.info("Certificate data: " + event)
-    metrics.incCounter(config.totalEventsCount)
-//    try {
+       metrics.incCounter(config.totalEventsCount)
+    try {
       val certValidator = new CertValidator()
       logger.info("Certificate generator | is rc integration enabled: " + config.enableRcCertificate)
-      print("certValidator call start ")
-    logger.info("certValidator call start  " )
       certValidator.validateGenerateCertRequest(event, config.enableSuppressException)
-     print("certValidator call end ")
-    logger.info("certValidator call end: ")
       if(certValidator.isNotIssued(event)(config, metrics, cassandraUtil)) {
         if(config.enableRcCertificate) generateCertificateUsingRC(event, context)(metrics)
         else
-          logger.info("generateCertificate fun start "+event)
-          generateCertificate(event, context)(metrics)
-        logger.info("generateCertificate fun end "+event)
-
-
-      } else {
+           generateCertificate(event, context)(metrics)
+         } else {
         metrics.incCounter(config.skippedEventCount)
         logger.info(s"Certificate already issued for: ${event.eData.getOrElse("userId", "")} ${event.related}")
       }
-//    } catch {
-//      case e: Exception =>
-//        metrics.incCounter(config.failedEventCount)
-//        throw new InvalidEventException(e.getMessage, Map("partition" -> event.partition, "offset" -> event.offset), e)
-//    }
+    } catch {
+      case e: Exception =>
+        metrics.incCounter(config.failedEventCount)
+        throw new InvalidEventException(e.getMessage, Map("partition" -> event.partition, "offset" -> event.offset), e)
+    }
   }
 
   @throws[Exception]
@@ -114,7 +104,6 @@ class CertificateGeneratorFunction(config: CertificateGeneratorConfig, httpUtil:
           JsonKeys.RECIPIENT_NAME -> certModel.recipientName, JsonKeys.RECIPIENT_ID -> certModel.identifier,
           config.RELATED -> event.related
         ) ++ {if (!event.oldId.isEmpty) Map[String, AnyRef](config.OLD_ID -> event.oldId) else Map[String, AnyRef]()}})
-        logger.info("addReq: "+addReq)
         addCertToRegistry(event, addReq, context)(metrics)
         //cert-registry end
         val related = event.related
@@ -187,11 +176,7 @@ class CertificateGeneratorFunction(config: CertificateGeneratorConfig, httpUtil:
   @throws[ServerException]
   def addCertToRegistry(certReq: Event, request: Map[String, AnyRef], context: KeyedProcessFunction[String, Event, String]#Context)(implicit metrics: Metrics): Unit = {
     logger.info("adding certificate to the registry")
-//    logger.info("adding certificate to the registry input request : "+request)
-
     val httpRequest = ScalaModuleJsonUtils.serialize(request)
-    logger.info("adding certificate to the registry after request : "+config.certRegistryBaseUrl + config.addCertRegApi)
-    print(" after request L ***** :"+config.certRegistryBaseUrl + config.addCertRegApi)
     val httpResponse = httpUtil.post(config.certRegistryBaseUrl + config.addCertRegApi, httpRequest)
     if (httpResponse.status == 200) {
       logger.info("certificate added successfully to the registry " + httpResponse.body)
