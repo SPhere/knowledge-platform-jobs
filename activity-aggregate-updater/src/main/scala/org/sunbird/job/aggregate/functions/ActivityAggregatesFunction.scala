@@ -95,10 +95,7 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
         val batchId = value.head(config.batchId).toString
         val userId = value.head(config.userId).toString
         val courseId = value.head(config.courseId).toString
-        course_Id=courseId
         val userConsumedContents = value.head(config.contents).asInstanceOf[List[Map[String, AnyRef]]]
-        content_Id=userConsumedContents.map(content => {
-          (content.getOrElse(config.contentId, "").asInstanceOf[String])}).toString()
         val enrichedContents = getContentStatusFromEvent(userConsumedContents)
         UserContentConsumption(userId = userId, batchId = batchId, courseId = courseId, enrichedContents)
       }).toList
