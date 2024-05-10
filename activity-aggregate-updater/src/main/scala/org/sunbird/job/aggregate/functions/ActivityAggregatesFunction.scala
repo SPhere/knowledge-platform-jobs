@@ -23,6 +23,13 @@ import org.sunbird.job.util.{CassandraUtil, HttpUtil}
 import org.sunbird.job.{Metrics, WindowBaseProcessFunction}
 
 import scala.collection.JavaConverters._
+import scala.collection.JavaConverters._
+import org.json4s._
+import org.json4s.native.JsonMethods._
+
+// Define case classes to represent the JSON structure
+case class Content(contentId: String, status: Int)
+case class EdData(contents: List[Content], action: String, iteration: Int, batchId: String, userId: String, courseId: String)
 
 class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUtil: HttpUtil, @transient var cassandraUtil: CassandraUtil = null)
                                 (implicit val stringTypeInfo: TypeInformation[String])
@@ -57,8 +64,28 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
               events: Iterable[Map[String, AnyRef]],
               metrics: Metrics): Unit = {
 
-     var course_Id: String = null
-     var content_Id: String = null
+    val jsonString=events.toString()
+    println("inside process fun if condition checked **********")
+    println(jsonString)
+    // Parse JSON string using json4s
+    implicit val formats: DefaultFormats.type = DefaultFormats
+    val json = parse(jsonString)
+
+    // Extracting edata field
+    val edata = json \ "edata"
+
+    // Parsing edata as EdData case class
+    val edData = edata.extract[EdData]
+
+    // Accessing parsed data
+    val courseId :String= edData.courseId
+    val contentId: String = edData.contents.head.contentId
+    println(s"Course ID: $courseId")
+    println(s"Content ID: $contentId")
+
+    if(courseId==contentId){
+      println("course id and content id both are same we not process anything")
+    }else{
     
     logger.debug("Input Events Size: " + events.toList.size)
     val inputUserConsumptionList: List[UserContentConsumption] = events
@@ -75,13 +102,7 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
         val enrichedContents = getContentStatusFromEvent(userConsumedContents)
         UserContentConsumption(userId = userId, batchId = batchId, courseId = courseId, enrichedContents)
       }).toList
-
-    if(course_Id.equals(content_Id)){
-      println("go with field event ")
-    }else{
-      println("next process")
-    
-    
+ 
     // Fetch the content status from the table in batch format
     val dbUserConsumption: Map[String, UserContentConsumption] = getContentStatusFromDB(events.toList, metrics)
 
