@@ -76,6 +76,12 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
         UserContentConsumption(userId = userId, batchId = batchId, courseId = courseId, enrichedContents)
       }).toList
 
+    if(course_Id.equals(content_Id)){
+      println("go with field event ")
+    }else{
+      println("next process")
+    }
+    
     // Fetch the content status from the table in batch format
     val dbUserConsumption: Map[String, UserContentConsumption] = getContentStatusFromDB(events.toList, metrics)
 
