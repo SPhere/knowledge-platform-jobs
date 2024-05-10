@@ -27,9 +27,6 @@ import scala.collection.JavaConverters._
 import org.json4s._
 import org.json4s.native.JsonMethods._
 
-// Define case classes to represent the JSON structure
-case class Content(contentId: String, status: Int)
-case class EdData(contents: List[Content], action: String, iteration: Int, batchId: String, userId: String, courseId: String)
 
 class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUtil: HttpUtil, @transient var cassandraUtil: CassandraUtil = null)
                                 (implicit val stringTypeInfo: TypeInformation[String])
