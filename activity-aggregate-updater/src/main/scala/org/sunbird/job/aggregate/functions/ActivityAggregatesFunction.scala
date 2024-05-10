@@ -57,6 +57,9 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
               events: Iterable[Map[String, AnyRef]],
               metrics: Metrics): Unit = {
 
+     var course_Id: String = null
+     var content_Id: String = null
+    
     logger.debug("Input Events Size: " + events.toList.size)
     val inputUserConsumptionList: List[UserContentConsumption] = events
         .groupBy(key => (key.get(config.courseId), key.get(config.batchId), key.get(config.userId)))
@@ -65,7 +68,10 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
         val batchId = value.head(config.batchId).toString
         val userId = value.head(config.userId).toString
         val courseId = value.head(config.courseId).toString
+        course_Id=courseId
         val userConsumedContents = value.head(config.contents).asInstanceOf[List[Map[String, AnyRef]]]
+        content_Id=userConsumedContents.map(content => {
+          (content.getOrElse(config.contentId, "").asInstanceOf[String])}).toString()
         val enrichedContents = getContentStatusFromEvent(userConsumedContents)
         UserContentConsumption(userId = userId, batchId = batchId, courseId = courseId, enrichedContents)
       }).toList
