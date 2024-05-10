@@ -80,7 +80,7 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
       println("go with field event ")
     }else{
       println("next process")
-    }
+    
     
     // Fetch the content status from the table in batch format
     val dbUserConsumption: Map[String, UserContentConsumption] = getContentStatusFromDB(events.toList, metrics)
@@ -128,7 +128,7 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
     // Content AUDIT Event generation and pushing to output tag.
     finalUserConsumptionList.flatMap(userConsumption => contentAuditEvents(userConsumption)).foreach(event => context.output(config.auditEventOutputTag, gson.toJson(event)))
   }
-
+  }
   /**
    * Course Level Agg using the merged data of ContentConsumption per user, course and batch.
    */
