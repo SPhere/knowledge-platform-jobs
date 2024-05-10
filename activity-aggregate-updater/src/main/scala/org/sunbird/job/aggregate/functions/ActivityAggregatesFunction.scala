@@ -67,23 +67,21 @@ class ActivityAggregatesFunction(config: ActivityAggregateUpdaterConfig, httpUti
     val jsonString=events.toString()
     println("inside process fun if condition checked **********")
     println(jsonString)
-    // Parse JSON string using json4s
-    implicit val formats: DefaultFormats.type = DefaultFormats
-    val json = parse(jsonString)
+    // Extract courseId
+    val courseIdPattern = "courseId -> (\\w+)".r
+    val courseId = courseIdPattern.findFirstMatchIn(jsonString).map(_.group(1))
 
-    // Extracting edata field
-    val edata = json \ "edata"
+    // Extract contentId
+    val contentIdPattern = "contentId -> (\\w+)".r
+    val contentId = contentIdPattern.findFirstMatchIn(jsonString).map(_.group(1))
 
-    // Parsing edata as EdData case class
-    val edData = edata.extract[EdData]
+    val course_Id:String=courseId.get
+    val content_Id:String=contentId.get
 
-    // Accessing parsed data
-    val courseId :String= edData.courseId
-    val contentId: String = edData.contents.head.contentId
-    println(s"Course ID: $courseId")
-    println(s"Content ID: $contentId")
+    println(s"Course ID: $course_Id")
+    println(s"Content ID: $content_Id")
 
-    if(courseId==contentId){
+    if(course_Id==content_Id){
       println("course id and content id both are same we not process anything")
     }else{
     
