@@ -73,10 +73,14 @@ object CertificateGeneratorStreamTask {
     val kafkaUtil = new FlinkKafkaConnector(ccgConfig)
     val httpUtil = new HttpUtil
     var storageParams: StorageParams = null
+    println("************************** ccgConfig.storageType ************** : "+ccgConfig.storageType)
    // val storageParams: StorageParams = StorageParams(ccgConfig.storageType, ccgConfig.azureStorageKey, ccgConfig.azureStorageSecret, ccgConfig.containerName)
     if (ccgConfig.storageType.equalsIgnoreCase(ccgConfig.AZURE)) {
+      println("AZURE if matched if cond *********** : azure StorageKey : "+ccgConfig.azureStorageKey+"azureStorageSecret : "+ ccgConfig.azureStorageSecret+"  AZURE ccgConfig.containerName : "+ ccgConfig.containerName)
+
       storageParams = StorageParams(ccgConfig.storageType, ccgConfig.azureStorageKey, ccgConfig.azureStorageSecret, ccgConfig.containerName)
     } else if (ccgConfig.storageType.equalsIgnoreCase(ccgConfig.AWS)) {
+      println("AWS if matched if cond *********** : awsStorageKey : "+ccgConfig.awsStorageKey+"awsStorageSecret : "+ ccgConfig.awsStorageSecret+" ccgConfig.containerName : "+ ccgConfig.containerName)
       storageParams = StorageParams(ccgConfig.storageType, ccgConfig.awsStorageKey, ccgConfig.awsStorageSecret, ccgConfig.containerName)
     } else if (ccgConfig.storageType.equalsIgnoreCase(ccgConfig.CEPHS3)) {
       storageParams = StorageParams(ccgConfig.storageType, ccgConfig.cephs3StorageKey, ccgConfig.cephs3StorageSecret, ccgConfig.containerName, Some(ccgConfig.cephs3StorageEndPoint))
