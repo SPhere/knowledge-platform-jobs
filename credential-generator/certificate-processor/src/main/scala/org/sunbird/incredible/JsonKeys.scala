@@ -26,6 +26,7 @@ object JsonKeys {
   val AZURE_STORAGE_KEY: String = "AZURE_STORAGE_KEY"
   val AZURE: String = "azure"
   val AWS: String = "aws"
+  val CEPHS3:String = "cephs3"
   val AWS_STORAGE_KEY: String = "AWS_STORAGE_KEY"
   val AWS_STORAGE_SECRET: String = "AWS_STORAGE_SECRET"
   val SLUG: String = "sunbird_cert_slug"
