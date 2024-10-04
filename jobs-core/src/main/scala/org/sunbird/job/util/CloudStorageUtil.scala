@@ -9,7 +9,7 @@ import java.io.File
 
 class CloudStorageUtil(config: BaseJobConfig) extends Serializable {
 
-  val cloudStorageType: String = config.getString("cloud_storage_type", "azure")
+  val cloudStorageType: String = config.getString("cloud_storage_type", "aws")
   var storageService: BaseStorageService = null
   val container: String = getContainerName
 
