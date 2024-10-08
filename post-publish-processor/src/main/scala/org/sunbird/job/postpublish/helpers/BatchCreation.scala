@@ -30,8 +30,6 @@ trait BatchCreation {
               put("createdFor", eData.get("createdFor"))
             put("enrollmentType", "open")
             put("startDate", startDate)
-            put("endDate",sameDayNextYear)
-            put("enrollmentEndDate",sameDayNextYear)
             put("endDate",date_day)
             put("enrollmentEndDate",date_day)
           }
